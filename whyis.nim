@@ -1,5 +1,4 @@
-import os, osproc, strutils, strformat, tables, terminal, algorithm
-import render
+import os, osproc, strutils, strformat, tables
 
 # ------------------------------
 # Configuration
@@ -29,87 +28,19 @@ except OSError:
   quit(1)
 
 # ------------------------------
-# Terminal UI
-# ------------------------------
-proc runTui(symptomsTable: Table[string, tuple[collector: string, rules: string]]) =
-  var symptoms: seq[string] = @[]
-
-  for key in symptomsTable.keys:
-    symptoms.add(key)
-
-  symptoms.sort()
-
-  var state = TuiState(
-    screen: skMenu,
-    symptoms: symptoms,
-    selected: 0,
-  )
-
-  while true:
-    render.render(state)
-
-    let key = getch()
-
-    case state.screen
-    of skMenu:
-      case key
-      of 'q', 'Q':
-        break
-      of 'j':
-        state.selected = min(state.selected + 1, state.symptoms.high)
-      of 'k':
-        state.selected = max(state.selected - 1, 0)
-      of '\n', '\r':
-        let symptom = state.symptoms[state.selected]
-
-        state.screen = skRunning
-        state.runningSymptom = symptom
-        render.render(state)
-
-        #TODO deeper
-        state.results = @[
-          Suggestion(cause: "Example cause 1", fix: "Example fix 1"),
-          Suggestion(cause: "Example cause 2", fix: "Example fix 2")
-        ]
-
-        state.screen = skResults
-      else:
-        discard
-
-    of skRunning:
-      discard
-
-    of skResults:
-      case key
-      of 'q', 'Q':
-        break
-      of '\e', '\n', '\r':
-        state.screen = skMenu
-      else:
-        discard
-
-# ------------------------------
 # Parse command-line argument
 # ------------------------------
 if paramCount() < 1:
-  echo "Usage: whyis <symptom> | -l | --list | -t | --tui"
+  echo "Usage: whyis <symptom> | -l | --list"
   quit(1)
 
 let arg = paramStr(1)
 
-case arg
-of "-l", "--list":
+if arg in ["-l", "--list"]:
   echo "Available symptoms:"
   for key in symptomsTable.keys:
     echo " - ", key
   quit(0)
-
-of "-t", "--tui":
-  runTui(symptomsTable)
-  quit(0)
-
-else:
-  discard
 
 let symptom = arg
 echo fmt"Running whyis for symptom: {symptom}"
