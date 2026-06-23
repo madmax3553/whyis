@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-REPO_URL="https://github.com/SammyCxu/whyis.git"
+REPO_URL="https://github.com/madmax3553/whyis.git"
 TMP_DIR="/tmp/whyis-install"
 BIN_NAME="whyis"
 BIN_TARGET="/usr/bin/$BIN_NAME"
